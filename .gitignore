@@ -1,0 +1,27 @@
+# Vagrant
+.vagrant/
+*.log
+
+# VirtualBox
+*.vbox
+*.vbox-prev
+*.vdi
+
+# OS specific
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor/IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# Temporary files
+*.tmp
+*.bak
+*.cache
