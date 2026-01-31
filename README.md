@@ -2,6 +2,8 @@
 
 A sandboxed Vagrant virtual machine for safely running and testing [OpenClaw](https://github.com/openclaw/openclaw) - the open-source autonomous AI agent (formerly Moltbot / Clawdbot).
 
+![OpenClaw VM Desktop](screenshot.png)
+
 ## Why a VM?
 
 OpenClaw is a powerful AI agent with full system access -- shell, files, browser, messaging platforms. Running it directly on your personal machine [raises security concerns](https://blogs.cisco.com/ai/personal-ai-agents-like-openclaw-are-a-security-nightmare). This project provides a pre-configured, isolated VM so you can:
