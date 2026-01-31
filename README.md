@@ -1,23 +1,33 @@
-# OpenClaw Vagrant Environment
+# OpenClaw VM
 
-A sandboxed Vagrant virtual machine for building, testing, and playing [OpenClaw](https://github.com/openclaw/openclaw) - the open-source reimplementation of Captain Claw.
+A sandboxed Vagrant virtual machine for safely running and testing [OpenClaw](https://github.com/openclaw/openclaw) - the open-source autonomous AI agent (formerly Moltbot / Clawdbot).
 
-## Features
+## Why a VM?
 
-- 🖥️ **Full GUI Desktop Environment** - Ubuntu 22.04 with XFCE
-- 🔒 **Sandboxed Testing** - Isolated VM environment for safe testing
-- 📦 **Pre-configured Dependencies** - All OpenClaw build requirements included
-- 🚀 **One-Command Setup** - `vagrant up` and you're ready to go
-- 🎮 **Ready to Build** - OpenClaw source code pre-cloned and ready to compile
+OpenClaw is a powerful AI agent with full system access -- shell, files, browser, messaging platforms. Running it directly on your personal machine [raises security concerns](https://blogs.cisco.com/ai/personal-ai-agents-like-openclaw-are-a-security-nightmare). This project provides a pre-configured, isolated VM so you can:
+
+- **Test safely** -- OpenClaw runs inside a disposable VM, not on your host
+- **Experiment freely** -- try agent capabilities without risk to your data
+- **Tear down and rebuild** -- `vagrant destroy && vagrant up` for a clean slate
+- **Access from host** -- Gateway dashboard forwarded to `localhost:18789`
+
+## What's Included
+
+| Category | Software |
+|----------|----------|
+| **OS** | Ubuntu 22.04 LTS with XFCE desktop |
+| **AI Agent** | OpenClaw (latest), Node.js 22, pnpm |
+| **Browser** | Google Chrome |
+| **Office** | LibreOffice |
+| **Media** | VLC |
+| **Dev Tools** | Git, vim, nano, htop, curl, wget |
+| **Package Mgr** | snapd, apt |
+| **Extras** | Evince (PDF), Ristretto (images), p7zip, system monitor |
 
 ## Prerequisites
 
-Before you begin, ensure you have the following installed:
-
-- [VirtualBox](https://www.virtualbox.org/wiki/Downloads) (6.1 or later)
-- [Vagrant](https://www.vagrantup.com/downloads) (2.2 or later)
-
-### Installation Guides
+- [VirtualBox](https://www.virtualbox.org/wiki/Downloads) (7.0 or later)
+- [Vagrant](https://www.vagrantup.com/downloads) (2.4 or later)
 
 <details>
 <summary>Windows</summary>
@@ -32,7 +42,6 @@ Before you begin, ensure you have the following installed:
 <summary>macOS</summary>
 
 ```bash
-# Using Homebrew
 brew install --cask virtualbox
 brew install --cask vagrant
 ```
@@ -60,104 +69,95 @@ sudo pacman -S virtualbox vagrant
 
 ```bash
 # Clone this repository
-git clone https://github.com/YOUR_USERNAME/openclaw-vagrant.git
-cd openclaw-vagrant
+git clone https://github.com/YOUR_USERNAME/openclaw-vm.git
+cd openclaw-vm
 
-# Start the VM (first run will take 10-15 minutes)
+# Start the VM (first run downloads the base box and provisions)
 vagrant up
 
-# The Ubuntu desktop GUI will open automatically
-# Login credentials: vagrant / vagrant
+# The XFCE desktop GUI opens automatically
+# Login: vagrant / vagrant
 ```
 
-Once the desktop loads, you'll find OpenClaw source code in `~/openclaw`.
+## Setting Up OpenClaw
 
-## Building OpenClaw
+After the desktop loads:
 
-Inside the VM, open a terminal and run:
+1. **Run the onboarding wizard** -- double-click "OpenClaw Setup" on the desktop, or open a terminal and run:
 
-```bash
-cd ~/openclaw/Build
-cmake ..
-make -j$(nproc)
+   ```bash
+   openclaw onboard --install-daemon
+   ```
 
-# Run the game (requires original game assets)
-./openclaw
-```
+   This walks you through:
+   - Choosing an AI provider and entering API keys
+   - Configuring messaging channels (Telegram, Discord, WhatsApp, etc.)
+   - Installing the gateway as a systemd service
 
-### Getting Game Assets
+2. **Open the dashboard** -- double-click "OpenClaw Dashboard" or visit `http://127.0.0.1:18789/` in Chrome inside the VM.
 
-OpenClaw requires the original Captain Claw game assets. You can:
+3. **Use the TUI** -- double-click "OpenClaw TUI" or run `openclaw` in a terminal.
 
-1. Copy your legitimate game files into the VM
-2. Follow the [official OpenClaw guide](https://github.com/openclaw/openclaw#obtaining-game-assets)
+The dashboard is also accessible from your **host machine** at `http://localhost:18789/` via port forwarding.
 
 ## VM Management
 
 ```bash
-# Start the VM
-vagrant up
-
-# Shutdown the VM
-vagrant halt
-
-# Restart the VM
-vagrant reload
-
-# SSH into the VM (headless access)
-vagrant ssh
-
-# Destroy the VM (clean slate)
-vagrant destroy
+vagrant up        # Start the VM
+vagrant halt      # Shut down the VM
+vagrant reload    # Restart the VM
+vagrant ssh       # SSH into the VM (headless)
+vagrant destroy   # Delete the VM entirely
+vagrant provision # Re-run provisioning on existing VM
 ```
 
 ## Configuration
 
-The VM is configured with:
+Default VM specs (edit `Vagrantfile` to adjust):
 
-- **OS**: Ubuntu 22.04 LTS (Jammy Jellyfish)
-- **Desktop**: XFCE4 (lightweight and responsive)
-- **RAM**: 4GB (adjustable in Vagrantfile)
-- **CPUs**: 2 cores (adjustable in Vagrantfile)
-- **Video Memory**: 128MB with 3D acceleration
-- **Shared Features**: Bidirectional clipboard and drag-and-drop
-
-### Customizing Resources
-
-Edit `Vagrantfile` and adjust these values:
-
-```ruby
-vb.memory = "4096"  # RAM in MB
-vb.cpus = 2         # CPU cores
-```
+| Setting | Default |
+|---------|---------|
+| RAM | 4 GB |
+| CPUs | 2 cores |
+| Video RAM | 128 MB |
+| 3D Acceleration | Enabled |
+| Clipboard | Bidirectional |
+| Drag and Drop | Bidirectional |
+| Nested Virtualization | Enabled |
 
 ## Troubleshooting
+
+See [docs/troubleshooting.md](docs/troubleshooting.md) for detailed solutions. Quick fixes:
 
 <details>
 <summary>GUI window doesn't appear</summary>
 
-Ensure VirtualBox GUI is enabled:
-```ruby
-vb.gui = true
+Ensure `vb.gui = true` is set in the Vagrantfile. Check that VirtualBox Extension Pack is installed.
+
+</details>
+
+<details>
+<summary>OpenClaw command not found</summary>
+
+SSH into the VM and reinstall:
+```bash
+vagrant ssh
+sudo npm install -g openclaw@latest
 ```
 
-Check VirtualBox Extension Pack is installed for enhanced features.
+</details>
+
+<details>
+<summary>Port 18789 already in use on host</summary>
+
+Vagrant auto-corrects port conflicts. Check `vagrant port` to see the actual mapping, or stop whatever is using port 18789 on your host.
 
 </details>
 
 <details>
-<summary>3D acceleration issues</summary>
+<summary>VM is slow</summary>
 
-If you experience graphics glitches:
-1. Disable 3D acceleration in Vagrantfile
-2. Reduce VRAM to 64MB or 32MB
-
-</details>
-
-<details>
-<summary>VM is slow/laggy</summary>
-
-Increase VM resources:
+Increase resources in the Vagrantfile:
 ```ruby
 vb.memory = "8192"  # 8GB RAM
 vb.cpus = 4         # 4 CPU cores
@@ -165,44 +165,18 @@ vb.cpus = 4         # 4 CPU cores
 
 </details>
 
-<details>
-<summary>Build errors</summary>
-
-Ensure all dependencies are installed:
-```bash
-sudo apt-get update
-sudo apt-get install build-essential cmake libsdl2-dev libsdl2-mixer-dev \
-    libsdl2-image-dev libsdl2-ttf-dev libpng-dev zlib1g-dev libtinyxml-dev \
-    libglew-dev libopenal-dev libvorbis-dev libfreetype6-dev
-```
-
-</details>
-
 ## Contributing
 
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
+Contributions are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License -- see [LICENSE](LICENSE) for details.
 
-## Acknowledgments
+## Links
 
-- [OpenClaw](https://github.com/openclaw/openclaw) - The amazing open-source Captain Claw reimplementation
-- [Vagrant](https://www.vagrantup.com/) - Development environment automation
-- [VirtualBox](https://www.virtualbox.org/) - Virtualization platform
-
-## Related Projects
-
-- [OpenClaw](https://github.com/openclaw/openclaw) - Main OpenClaw project
-- [Captain Claw Reverse Engineering](https://github.com/pjasicek/CaptainClaw) - Original reverse engineering effort
-
-## Support
-
-- Open an [issue](https://github.com/YOUR_USERNAME/openclaw-vagrant/issues) for bug reports
-- Check [OpenClaw documentation](https://github.com/openclaw/openclaw/wiki) for game-specific questions
-- Visit the [OpenClaw community](https://github.com/openclaw/openclaw/discussions)
-
----
-
-Made with ❤️ for the OpenClaw community
+- [OpenClaw](https://github.com/openclaw/openclaw) -- Main OpenClaw repository
+- [OpenClaw Docs](https://docs.openclaw.ai/) -- Official documentation
+- [openclaw.ai](https://openclaw.ai/) -- Project website
+- [Vagrant](https://www.vagrantup.com/) -- VM automation
+- [VirtualBox](https://www.virtualbox.org/) -- Virtualization platform

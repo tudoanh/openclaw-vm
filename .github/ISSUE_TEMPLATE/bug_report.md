@@ -23,9 +23,11 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 ## Environment
-- **Host OS**: [e.g. Windows 11, macOS 14, Ubuntu 22.04]
+- **Host OS**: [e.g. Windows 11, macOS 14, Ubuntu 24.04]
 - **VirtualBox Version**: [e.g. 7.0.12]
-- **Vagrant Version**: [e.g. 2.3.7]
+- **Vagrant Version**: [e.g. 2.4.x]
+- **OpenClaw Version**: [e.g. 2026.1.24]
+- **Node.js Version**: [e.g. 22.x]
 - **Hardware**: [e.g. CPU, RAM available]
 
 ## Logs

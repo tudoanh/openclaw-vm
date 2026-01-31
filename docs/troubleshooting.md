@@ -1,13 +1,13 @@
 # Troubleshooting Guide
 
-Common issues and their solutions for the OpenClaw Vagrant environment.
+Common issues and solutions for the OpenClaw VM environment.
 
 ## Table of Contents
 
 - [Provisioning Issues](#provisioning-issues)
 - [GUI Issues](#gui-issues)
+- [OpenClaw Issues](#openclaw-issues)
 - [Performance Issues](#performance-issues)
-- [Build Issues](#build-issues)
 - [VirtualBox Issues](#virtualbox-issues)
 - [Network Issues](#network-issues)
 
@@ -21,17 +21,16 @@ Common issues and their solutions for the OpenClaw Vagrant environment.
 
 **Solutions**:
 
-1. Check your internet connection
-2. Try re-provisioning:
+1. Check your internet connection -- provisioning downloads packages
+2. Try re-provisioning from scratch:
    ```bash
    vagrant destroy -f
    vagrant up
    ```
-
 3. Check VirtualBox logs:
    ```bash
    VBoxManage list vms
-   VBoxManage showvminfo "OpenClaw Development Environment"
+   VBoxManage showvminfo "OpenClaw VM"
    ```
 
 ### Package installation fails
@@ -46,8 +45,21 @@ Common issues and their solutions for the OpenClaw Vagrant environment.
    sudo apt-get update
    sudo apt-get upgrade
    ```
-
 2. Check Ubuntu mirror status and try a different mirror
+
+### Node.js installation fails
+
+**Symptoms**: NodeSource setup script errors
+
+**Solutions**:
+
+1. SSH in and install manually:
+   ```bash
+   vagrant ssh
+   curl -fsSL https://deb.nodesource.com/setup_22.x | sudo bash -
+   sudo apt-get install -y nodejs
+   ```
+2. Verify Node version: `node --version` (should be >= 22)
 
 ---
 
@@ -61,14 +73,12 @@ Common issues and their solutions for the OpenClaw Vagrant environment.
    ```ruby
    vb.gui = true
    ```
-
 2. Check if VM is running:
    ```bash
    vagrant status
    VBoxManage list runningvms
    ```
-
-3. Try restarting the display manager:
+3. Restart the display manager:
    ```bash
    vagrant ssh
    sudo systemctl restart lightdm
@@ -83,31 +93,14 @@ Common issues and their solutions for the OpenClaw Vagrant environment.
    # Comment out this line:
    # vb.customize ["modifyvm", :id, "--accelerate3d", "on"]
    ```
-
 2. Change graphics controller:
    ```ruby
    vb.customize ["modifyvm", :id, "--graphicscontroller", "vboxvga"]
    ```
-
 3. Reduce video memory:
    ```ruby
    vb.customize ["modifyvm", :id, "--vram", "64"]
    ```
-
-### Screen resolution issues
-
-**Solutions**:
-
-1. Install VirtualBox Guest Additions:
-   ```bash
-   vagrant ssh
-   sudo apt-get install virtualbox-guest-x11
-   sudo reboot
-   ```
-
-2. Manually set resolution in VM:
-   - Go to Display Settings in XFCE
-   - Select desired resolution
 
 ### Clipboard not working
 
@@ -118,10 +111,78 @@ Common issues and their solutions for the OpenClaw Vagrant environment.
    vagrant ssh
    lsmod | grep vbox
    ```
-
 2. Restart VirtualBox services:
    ```bash
    sudo systemctl restart vboxadd-service
+   ```
+
+---
+
+## OpenClaw Issues
+
+### `openclaw` command not found
+
+**Solutions**:
+
+1. Reinstall globally:
+   ```bash
+   sudo npm install -g openclaw@latest
+   ```
+2. Check npm global bin is in PATH:
+   ```bash
+   npm config get prefix
+   echo $PATH
+   ```
+
+### OpenClaw gateway won't start
+
+**Solutions**:
+
+1. Check if the daemon is installed:
+   ```bash
+   systemctl --user status openclaw-gateway
+   ```
+2. Re-run onboarding:
+   ```bash
+   openclaw onboard --install-daemon
+   ```
+3. Start manually:
+   ```bash
+   openclaw gateway
+   ```
+
+### Dashboard not accessible from host
+
+**Symptoms**: `http://localhost:18789/` doesn't load on host machine
+
+**Solutions**:
+
+1. Check port forwarding is active:
+   ```bash
+   vagrant port
+   ```
+2. Verify gateway is running inside VM:
+   ```bash
+   vagrant ssh
+   curl http://127.0.0.1:18789/
+   ```
+3. Check if port was auto-corrected due to conflict -- `vagrant port` shows actual mapping
+
+### OpenClaw onboarding fails
+
+**Solutions**:
+
+1. Check Node.js version:
+   ```bash
+   node --version  # Must be >= 22
+   ```
+2. Check network connectivity (needed for API key validation):
+   ```bash
+   curl -s https://api.openai.com > /dev/null && echo "OK" || echo "FAIL"
+   ```
+3. Try running with verbose output:
+   ```bash
+   DEBUG=* openclaw onboard --install-daemon
    ```
 
 ---
@@ -137,9 +198,7 @@ Common issues and their solutions for the OpenClaw Vagrant environment.
    vb.memory = "8192"  # 8GB
    vb.cpus = 4
    ```
-
 2. Close other applications on host machine
-
 3. Disable unnecessary services in VM:
    ```bash
    vagrant ssh
@@ -147,80 +206,27 @@ Common issues and their solutions for the OpenClaw Vagrant environment.
    sudo systemctl disable cups
    ```
 
-4. Use a lighter desktop environment or disable compositing
-
 ### High CPU usage
 
 **Solutions**:
 
 1. Disable 3D acceleration if not needed
-2. Reduce video memory
-3. Check for runaway processes:
+2. Check for runaway processes:
    ```bash
    vagrant ssh
    htop
    ```
+3. OpenClaw gateway may consume CPU during active tasks -- this is expected
 
 ### Disk I/O is slow
 
 **Solutions**:
 
 1. Use SSD on host machine if possible
-2. Adjust disk controller settings:
+2. Enable host I/O caching:
    ```ruby
    vb.customize ["storagectl", :id, "--name", "SCSI", "--hostiocache", "on"]
    ```
-
----
-
-## Build Issues
-
-### CMake configuration fails
-
-**Solutions**:
-
-1. Ensure all dependencies are installed:
-   ```bash
-   sudo apt-get install build-essential cmake libsdl2-dev libsdl2-mixer-dev \
-       libsdl2-image-dev libsdl2-ttf-dev libpng-dev zlib1g-dev libtinyxml-dev \
-       libglew-dev libopenal-dev libvorbis-dev libfreetype6-dev
-   ```
-
-2. Clean build directory:
-   ```bash
-   cd ~/openclaw
-   rm -rf Build
-   mkdir Build
-   cd Build
-   cmake ..
-   ```
-
-### Compilation errors
-
-**Solutions**:
-
-1. Check GCC version:
-   ```bash
-   gcc --version
-   ```
-
-2. Update build tools:
-   ```bash
-   sudo apt-get update
-   sudo apt-get install --upgrade build-essential
-   ```
-
-3. Check OpenClaw GitHub issues for known build problems
-
-### Missing game assets
-
-**Symptoms**: "Cannot find CLAW.REZ" or similar
-
-**Solutions**:
-
-1. You need the original Captain Claw game files
-2. Copy CLAW.REZ to the appropriate directory
-3. See [OpenClaw documentation](https://github.com/openclaw/openclaw) for details
 
 ---
 
@@ -255,19 +261,7 @@ Common issues and their solutions for the OpenClaw Vagrant environment.
    ```bash
    sudo /sbin/vboxconfig
    ```
-
 2. On macOS, allow kernel extension in Security & Privacy settings
-
-### USB devices not working
-
-**Solutions**:
-
-1. Install VirtualBox Extension Pack
-2. Add your user to vboxusers group (Linux):
-   ```bash
-   sudo usermod -a -G vboxusers $USER
-   ```
-   Log out and back in.
 
 ---
 
@@ -283,46 +277,26 @@ Common issues and their solutions for the OpenClaw Vagrant environment.
    vagrant ssh
    sudo systemctl restart NetworkManager
    ```
-
 3. Try different network mode in Vagrantfile:
    ```ruby
    config.vm.network "public_network"
-   ```
-
-### Git clone fails
-
-**Solutions**:
-
-1. Check internet connectivity:
-   ```bash
-   vagrant ssh
-   ping github.com
-   ```
-
-2. Try HTTPS instead of SSH for git:
-   ```bash
-   git clone https://github.com/openclaw/openclaw
    ```
 
 ---
 
 ## Getting More Help
 
-If you've tried these solutions and still have issues:
+If these solutions don't resolve your issue:
 
-1. Check existing [GitHub Issues](https://github.com/YOUR_USERNAME/openclaw-vagrant/issues)
+1. Check existing [GitHub Issues](https://github.com/YOUR_USERNAME/openclaw-vm/issues)
 2. Create a new issue with:
    - Detailed description
    - Steps to reproduce
    - Error logs
    - System information
-3. Join the OpenClaw community discussions
+3. Check [OpenClaw documentation](https://docs.openclaw.ai/) for agent-specific issues
 
----
-
-## Reporting Issues
-
-When reporting issues, include:
+### Collecting Debug Info
 
 ```bash
 # System information
@@ -333,6 +307,11 @@ uname -a
 # Vagrant status
 vagrant status
 
-# Logs
+# Detailed logs
 vagrant up --debug > vagrant-debug.log 2>&1
+
+# Inside VM
+node --version
+openclaw --version
+systemctl --user status openclaw-gateway
 ```

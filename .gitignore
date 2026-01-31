@@ -25,3 +25,9 @@ desktop.ini
 *.tmp
 *.bak
 *.cache
+
+# Node
+node_modules/
+
+# OpenClaw config (may contain API keys)
+.openclaw/

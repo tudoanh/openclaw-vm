@@ -28,6 +28,12 @@ jobs:
     - name: Check Ruby syntax
       run: ruby -c Vagrantfile
 
+    - name: Check provisioning script has Node.js 22
+      run: grep -q "setup_22.x" Vagrantfile
+
+    - name: Check OpenClaw install step exists
+      run: grep -q "openclaw@latest" Vagrantfile
+
   markdown-lint:
     name: Lint Markdown Files
     runs-on: ubuntu-latest

@@ -1,6 +1,6 @@
-# Contributing to OpenClaw Vagrant
+# Contributing to OpenClaw VM
 
-First off, thank you for considering contributing to OpenClaw Vagrant! It's people like you that make this project a great tool for the community.
+Thank you for considering contributing to OpenClaw VM. This project provides a sandboxed Vagrant environment for safely running the OpenClaw AI agent.
 
 ## Code of Conduct
 
@@ -10,57 +10,43 @@ This project and everyone participating in it is governed by our commitment to p
 
 ### Reporting Bugs
 
-Before creating bug reports, please check the existing issues to avoid duplicates. When you create a bug report, include as many details as possible:
+Before creating bug reports, check existing issues to avoid duplicates. When filing a bug report, include:
 
-**Bug Report Template:**
-
-```markdown
-**Describe the bug**
-A clear and concise description of what the bug is.
-
-**To Reproduce**
-Steps to reproduce the behavior:
-1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
-4. See error
-
-**Expected behavior**
-A clear and concise description of what you expected to happen.
-
-**Environment:**
- - Host OS: [e.g. Windows 11, macOS 14, Ubuntu 22.04]
- - VirtualBox Version: [e.g. 7.0]
- - Vagrant Version: [e.g. 2.3.4]
- - Error logs/screenshots if applicable
-
-**Additional context**
-Add any other context about the problem here.
-```
+- Description of the bug
+- Steps to reproduce
+- Expected behavior
+- Host OS, VirtualBox version, Vagrant version
+- Error logs (`vagrant up --debug > vagrant.log 2>&1`)
 
 ### Suggesting Enhancements
 
-Enhancement suggestions are tracked as GitHub issues. When creating an enhancement suggestion, include:
+Enhancement suggestions are tracked as GitHub issues. Include:
 
-- **Use a clear and descriptive title**
-- **Provide a detailed description of the suggested enhancement**
-- **Explain why this enhancement would be useful**
-- **List any alternative solutions you've considered**
+- A clear and descriptive title
+- Detailed description of the suggested enhancement
+- Why this enhancement would be useful
+- Alternative solutions you've considered
 
 ### Pull Requests
 
-1. **Fork the repository** and create your branch from `main`
-2. **Make your changes** with clear, descriptive commit messages
-3. **Test your changes** - ensure the VM provisions correctly
-4. **Update documentation** - update README.md if you change functionality
-5. **Submit a pull request** with a clear description of changes
+1. Fork the repository and create your branch from `main`
+2. Make your changes with clear, descriptive commit messages
+3. Test your changes -- ensure the VM provisions correctly
+4. Update documentation if you change functionality
+5. Submit a pull request with a clear description
 
-#### Pull Request Process
+#### Testing Checklist
 
-1. Ensure any install or build dependencies are documented
-2. Update the README.md with details of changes if applicable
-3. Test the Vagrantfile with `vagrant up` and `vagrant destroy` before submitting
-4. Your PR will be reviewed by maintainers who may request changes
+Before submitting a PR, verify:
+
+- [ ] VM provisions successfully (`vagrant up`)
+- [ ] GUI displays correctly after reboot
+- [ ] OpenClaw installs and is available on PATH
+- [ ] Common applications (Chrome, VLC, LibreOffice) launch
+- [ ] Port forwarding works (gateway dashboard on host:18789)
+- [ ] Desktop shortcuts function correctly
+- [ ] Documentation is updated
+- [ ] No unnecessary files are committed
 
 #### Commit Message Guidelines
 
@@ -69,21 +55,12 @@ Enhancement suggestions are tracked as GitHub issues. When creating an enhanceme
 - Limit first line to 72 characters
 - Reference issues and pull requests when relevant
 
-Examples:
-```
-Add support for Ubuntu 24.04
-Fix 3D acceleration on macOS hosts
-Update dependencies to latest versions
-```
-
 ### Development Setup
-
-To work on this project:
 
 ```bash
 # Fork and clone the repository
-git clone https://github.com/YOUR_USERNAME/openclaw-vagrant.git
-cd openclaw-vagrant
+git clone https://github.com/YOUR_USERNAME/openclaw-vm.git
+cd openclaw-vm
 
 # Create a feature branch
 git checkout -b feature/your-feature-name
@@ -99,38 +76,36 @@ git commit -m "Add your feature"
 git push origin feature/your-feature-name
 ```
 
-### Testing Checklist
-
-Before submitting a PR, verify:
-
-- [ ] VM provisions successfully (`vagrant up`)
-- [ ] GUI displays correctly
-- [ ] All dependencies install without errors
-- [ ] OpenClaw source code clones successfully
-- [ ] Desktop environment loads properly
-- [ ] Documentation is updated
-- [ ] No unnecessary files are committed
-
 ### Project Structure
 
 ```
-openclaw-vagrant/
-├── Vagrantfile           # Main VM configuration
-├── README.md            # Project documentation
-├── CONTRIBUTING.md      # This file
-├── LICENSE             # MIT License
-├── .gitignore          # Git ignore rules
-└── docs/               # Additional documentation
-    └── troubleshooting.md
+openclaw-vm/
+├── Vagrantfile              # Main VM configuration and provisioning
+├── README.md                # Project documentation
+├── CONTRIBUTING.md          # This file
+├── CHANGELOG.md             # Version history
+├── LICENSE                  # MIT License
+├── .gitignore               # Git ignore rules
+├── .markdownlint.json       # Markdown linting config
+├── .markdown-link-check.json # Link checker config
+├── docs/
+│   ├── customization.md     # VM customization guide
+│   └── troubleshooting.md   # Troubleshooting guide
+└── .github/
+    ├── workflows/
+    │   └── vagrant-validate.yml  # CI pipeline
+    └── ISSUE_TEMPLATE/
+        ├── bug_report.md
+        └── feature_request.md
 ```
 
-## Styleguides
+## Style Guides
 
 ### Vagrantfile Style
 
 - Use 2 spaces for indentation
 - Add comments for non-obvious configuration
-- Keep provisioning scripts organized and readable
+- Keep provisioning scripts organized with numbered stages
 - Use variables for configurable values
 
 ### Documentation Style
@@ -138,18 +113,14 @@ openclaw-vagrant/
 - Use Markdown for all documentation
 - Use clear, concise language
 - Include code examples where helpful
-- Keep line length reasonable (80-100 characters)
 
 ## Additional Resources
 
 - [Vagrant Documentation](https://www.vagrantup.com/docs)
 - [VirtualBox Manual](https://www.virtualbox.org/manual/)
 - [OpenClaw Project](https://github.com/openclaw/openclaw)
+- [OpenClaw Docs](https://docs.openclaw.ai/)
 
 ## Questions?
 
-Feel free to open an issue with the `question` label, and we'll be happy to help!
-
----
-
-Thank you for contributing! 🎮
+Open an issue with the `question` label.
