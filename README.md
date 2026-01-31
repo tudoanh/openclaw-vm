@@ -9,7 +9,8 @@ OpenClaw is a powerful AI agent with full system access -- shell, files, browser
 - **Test safely** -- OpenClaw runs inside a disposable VM, not on your host
 - **Experiment freely** -- try agent capabilities without risk to your data
 - **Tear down and rebuild** -- `vagrant destroy && vagrant up` for a clean slate
-- **Access from host** -- Gateway dashboard forwarded to `localhost:18789`
+- **Access from host** -- Gateway dashboard forwarded to `localhost:18789` (token required)
+- **Auto-start** -- Gateway daemon starts automatically on login after setup
 
 ## What's Included
 
