@@ -90,15 +90,47 @@ After the desktop loads:
    ```
 
    This walks you through:
-   - Choosing an AI provider and entering API keys
+   - Choosing an AI provider (Anthropic, OpenAI, etc.) and entering API keys
    - Configuring messaging channels (Telegram, Discord, WhatsApp, etc.)
-   - Installing the gateway as a systemd service
+   - Installing the gateway daemon as a user systemd service
 
-2. **Open the dashboard** -- double-click "OpenClaw Dashboard" or visit `http://127.0.0.1:18789/` in Chrome inside the VM.
+2. **Get your gateway token** -- the dashboard requires a token for authentication. Find it with:
 
-3. **Use the TUI** -- double-click "OpenClaw TUI" or run `openclaw` in a terminal.
+   ```bash
+   cat ~/.openclaw/openclaw.json | grep -A 2 '"auth"'
+   ```
 
-The dashboard is also accessible from your **host machine** at `http://localhost:18789/` via port forwarding.
+   Look for the `"token"` value (a long hex string).
+
+3. **Access the dashboard** -- open Chrome and visit:
+
+   ```
+   http://127.0.0.1:18789/?token=YOUR_TOKEN_HERE
+   ```
+
+   Replace `YOUR_TOKEN_HERE` with the token from step 2.
+
+   The dashboard is also accessible from your **host machine** at:
+   ```
+   http://localhost:18789/?token=YOUR_TOKEN_HERE
+   ```
+
+4. **Use the TUI** -- double-click "OpenClaw TUI" or run `openclaw` in a terminal.
+
+### Gateway Auto-Start
+
+After onboarding, the gateway daemon auto-starts on every login via a systemd user service. Check status with:
+
+```bash
+systemctl --user status openclaw-gateway
+```
+
+Manual controls:
+```bash
+systemctl --user start openclaw-gateway    # Start
+systemctl --user stop openclaw-gateway     # Stop
+systemctl --user restart openclaw-gateway  # Restart
+```
 
 ## VM Management
 
@@ -137,6 +169,46 @@ Ensure `vb.gui = true` is set in the Vagrantfile. Check that VirtualBox Extensio
 </details>
 
 <details>
+<summary>Dashboard shows "unauthorized: gateway token missing"</summary>
+
+The dashboard requires a token for authentication. Find your token:
+
+```bash
+vagrant ssh
+cat ~/.openclaw/openclaw.json | grep '"token"'
+```
+
+Then access the dashboard with the token in the URL:
+```
+http://localhost:18789/?token=YOUR_TOKEN_HERE
+```
+
+</details>
+
+<details>
+<summary>OpenClaw TUI icon opens and closes immediately</summary>
+
+The desktop launcher has been updated to keep the terminal open. If you're on an older VM build, manually fix it:
+
+```bash
+cat > ~/Desktop/openclaw-tui.desktop <<'EOF'
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=OpenClaw TUI
+Comment=Launch OpenClaw Terminal Interface
+Exec=xfce4-terminal -e "bash -c 'openclaw || bash'"
+Icon=utilities-terminal
+Terminal=false
+Categories=Development;
+EOF
+
+chmod +x ~/Desktop/openclaw-tui.desktop
+```
+
+</details>
+
+<details>
 <summary>OpenClaw command not found</summary>
 
 SSH into the VM and reinstall:
@@ -151,6 +223,19 @@ sudo npm install -g openclaw@latest
 <summary>Port 18789 already in use on host</summary>
 
 Vagrant auto-corrects port conflicts. Check `vagrant port` to see the actual mapping, or stop whatever is using port 18789 on your host.
+
+</details>
+
+<details>
+<summary>Gateway not running after reboot</summary>
+
+The gateway runs as a user service and starts on login. Check status:
+```bash
+vagrant ssh
+systemctl --user status openclaw-gateway
+```
+
+If it's not running, you may need to complete the onboarding first (`openclaw onboard --install-daemon`).
 
 </details>
 
