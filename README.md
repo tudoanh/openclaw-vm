@@ -72,7 +72,7 @@ sudo pacman -S virtualbox vagrant
 
 ```bash
 # Clone this repository
-git clone https://github.com/YOUR_USERNAME/openclaw-vm.git
+git clone https://github.com/tudoanh/openclaw-vm.git
 cd openclaw-vm
 
 # Start the VM (first run downloads the base box and provisions)
